@@ -8,5 +8,8 @@ namespace Api.Services.Interfaces
         Task<User?> GetUserByEmail(string email);
         Task<AuthResponse> SignUp(SignUpRequest request);
         Task<AuthResponse> SignIn(SignInRequest request);
+        Task RequestPasswordResetAsync(string email);
+        Task ResetPasswordAsync(string token, string newPassword);
+        Task LogoutAsync(string token);
     }
 }

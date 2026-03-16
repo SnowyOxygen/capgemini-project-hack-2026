@@ -1,7 +1,9 @@
+using System.Reflection;
 using System.Text;
 using Api.Data;
 using Api.Infrastructure.Repositories.Implementations;
 using Api.Infrastructure.Repositories.Interfaces;
+using Api.Middleware;
 using Api.Services.Implementations;
 using Api.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,7 +16,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Include XML comments
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFilename);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
+});
 
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
                           ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -23,9 +34,12 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
 builder.Services.AddScoped<ISiteRepository, SiteRepository>();
 builder.Services.AddScoped<IParkingRepository, ParkingRepository>();
 builder.Services.AddScoped<IEnergieRepository, EnergieRepository>();
@@ -68,6 +82,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseMiddleware<TokenBlacklistMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

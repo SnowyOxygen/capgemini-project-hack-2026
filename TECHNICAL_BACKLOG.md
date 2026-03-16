@@ -12,9 +12,9 @@
 **Backend:**
 - ✅ JWT authentication & password hashing
 - ✅ Sign in/Sign up endpoints
-- ⬜ Password reset endpoints (forgot-password, reset-password)
-- ⬜ Email service integration
-- ⬜ Token blacklist for logout
+- ✅ Password reset endpoints (forgot-password, reset-password)
+- ✅ Email service integration
+- ✅ Token blacklist for logout
 
 **Frontend:**
 - ⬜ Login/Logout pages

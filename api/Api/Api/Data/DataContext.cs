@@ -12,6 +12,8 @@ namespace Api.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+        public DbSet<BlacklistedToken> BlacklistedTokens { get; set; }
         public DbSet<Site> Sites { get; set; }
         public DbSet<Parking> Parkings { get; set; }
         public DbSet<Energie> Energies { get; set; }
@@ -45,6 +47,19 @@ namespace Api.Data
                 .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PasswordResetToken>()
+                .HasOne(prt => prt.User)
+                .WithMany()
+                .HasForeignKey(prt => prt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<PasswordResetToken>()
+                .HasIndex(prt => prt.Token)
+                .IsUnique();
+
+            modelBuilder.Entity<BlacklistedToken>()
+                .HasIndex(bt => bt.Token);
 
             modelBuilder.Entity<Parking>()
                 .HasOne(p => p.Site)

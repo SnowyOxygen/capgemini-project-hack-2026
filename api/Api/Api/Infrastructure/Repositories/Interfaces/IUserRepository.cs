@@ -6,5 +6,6 @@ namespace Api.Infrastructure.Repositories.Interfaces
     {
         Task<User?> GetUserByEmail(string email);
         Task<User> CreateUser(User user);
+        Task UpdateUser(User user);
     }
 }

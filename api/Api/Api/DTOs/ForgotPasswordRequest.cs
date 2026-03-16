@@ -3,23 +3,16 @@ using System.ComponentModel.DataAnnotations;
 namespace Api.DTOs
 {
     /// <summary>
-    /// Request model for user sign in
+    /// Request model for initiating password reset
     /// </summary>
-    public class SignInRequest
+    public class ForgotPasswordRequest
     {
         /// <summary>
-        /// User's email address
+        /// Email address of the account to reset password for
         /// </summary>
         /// <example>user@example.com</example>
         [Required]
         [EmailAddress]
         public required string Email { get; set; }
-
-        /// <summary>
-        /// User's password
-        /// </summary>
-        /// <example>SecurePass123</example>
-        [Required]
-        public required string Password { get; set; }
     }
 }
