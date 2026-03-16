@@ -1,0 +1,1 @@
+# capgemini-project-hack-2026
