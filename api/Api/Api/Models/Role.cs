@@ -1,0 +1,19 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Api.Models
+{
+    [Table("roles")]
+    public class Role
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public required string Name { get; set; }
+
+        public ICollection<User> Users { get; set; } = new List<User>();
+    }
+}
