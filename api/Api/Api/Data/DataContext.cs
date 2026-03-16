@@ -12,6 +12,14 @@ namespace Api.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Site> Sites { get; set; }
+        public DbSet<Parking> Parkings { get; set; }
+        public DbSet<Energie> Energies { get; set; }
+        public DbSet<Materiau> Materiaux { get; set; }
+        public DbSet<SiteMateriau> SiteMateriaux { get; set; }
+        public DbSet<FacteurEnergie> FacteursEnergie { get; set; }
+        public DbSet<EmissionMensuelle> EmissionsMensuelles { get; set; }
+        public DbSet<EmissionSnapshot> EmissionSnapshots { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -37,6 +45,49 @@ namespace Api.Data
                 .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Parking>()
+                .HasOne(p => p.Site)
+                .WithMany(s => s.Parkings)
+                .HasForeignKey(p => p.SiteId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Energie>()
+                .HasOne(e => e.Site)
+                .WithMany(s => s.Energies)
+                .HasForeignKey(e => e.SiteId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SiteMateriau>()
+                .HasOne(sm => sm.Site)
+                .WithMany(s => s.SiteMateriaux)
+                .HasForeignKey(sm => sm.SiteId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<SiteMateriau>()
+                .HasOne(sm => sm.Materiau)
+                .WithMany(m => m.SiteMateriaux)
+                .HasForeignKey(sm => sm.MateriauId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EmissionMensuelle>()
+                .HasOne(em => em.Site)
+                .WithMany(s => s.EmissionsMensuelles)
+                .HasForeignKey(em => em.SiteId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EmissionMensuelle>()
+                .HasIndex(em => new { em.SiteId, em.Annee, em.Mois })
+                .IsUnique();
+
+            modelBuilder.Entity<EmissionSnapshot>()
+                .HasOne(es => es.Site)
+                .WithMany(s => s.EmissionSnapshots)
+                .HasForeignKey(es => es.SiteId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<EmissionSnapshot>()
+                .HasIndex(es => new { es.SiteId, es.PeriodeDebut, es.PeriodeFin });
         }
     }
 }

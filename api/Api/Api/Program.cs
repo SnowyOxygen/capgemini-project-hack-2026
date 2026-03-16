@@ -26,6 +26,14 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ISiteRepository, SiteRepository>();
+builder.Services.AddScoped<IParkingRepository, ParkingRepository>();
+builder.Services.AddScoped<IEnergieRepository, EnergieRepository>();
+builder.Services.AddScoped<IMateriauRepository, MateriauRepository>();
+builder.Services.AddScoped<ISiteMateriauRepository, SiteMateriauRepository>();
+builder.Services.AddScoped<IFacteurEnergieRepository, FacteurEnergieRepository>();
+builder.Services.AddScoped<IEmissionMensuelleRepository, EmissionMensuelleRepository>();
+builder.Services.AddScoped<IEmissionSnapshotRepository, EmissionSnapshotRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
