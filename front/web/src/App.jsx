@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AddSite from './pages/AddSite';
+import AddConsumption from './pages/AddConsumption';
 import SiteDetail from './pages/SiteDetail';
 import EditSite from './pages/EditSite';
 import DashboardLayout from './components/DashboardLayout';
@@ -24,6 +25,7 @@ function App() {
         <Route path="/site/:id" element={<SiteDetail />} />
         <Route path="/site/:id/edit" element={<EditSite />} />
         <Route path="/add-site" element={<AddSite />} />
+        <Route path="/add-consumption" element={<AddConsumption />} />
       </Route>
     </Routes>
   )

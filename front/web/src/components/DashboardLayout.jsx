@@ -1,5 +1,5 @@
 import { useNavigate, Outlet, useLocation, useParams } from 'react-router-dom';
-import { LogOut, Plus, LayoutDashboard } from 'lucide-react';
+import { LogOut, Plus, LayoutDashboard, Zap } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -92,6 +92,11 @@ export default function DashboardLayout() {
           <button style={styles.actionButton} onClick={handleAddBatiment}>
             <Plus size={20} />
             <span>Add Site</span>
+          </button>
+          
+          <button style={styles.actionButton} onClick={() => navigate('/add-consumption')}>
+            <Zap size={20} />
+            <span>Add Consumption</span>
           </button>
           
           <button style={styles.logoutButton} onClick={handleLogout}>
