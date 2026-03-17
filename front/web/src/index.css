@@ -108,8 +108,17 @@ code {
   background: var(--code-bg);
 }
 
-/* Dashboard delete button hover effect */
-.site-delete-button:hover {
-  background-color: #F44336 !important;
-  color: white !important;
+/* Dashboard site card hover effects */
+.site-card-clickable {
+  transition: all 0.2s ease;
+}
+
+.site-card-clickable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+  border-color: #8DC5AA !important;
+}
+
+.site-card-clickable:active {
+  transform: translateY(-2px);
 }

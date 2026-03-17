@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Plus, LayoutDashboard, Building2, Trash2 } from 'lucide-react';
+import { Building2 } from 'lucide-react';
 import axios from 'axios';
-import CO2EmissionsChart, { calculateTotalCO2 } from '../components/CO2EmissionsChart';
-import EnergyConsumptionChart, { calculateTotalEnergy } from '../components/EnergyConsumptionChart';
-import ParkingDistributionChart, { calculateTotalParking } from '../components/ParkingDistributionChart';
-import BuildingEfficiencyGauge, { calculateCO2PerM2, calculateEnergyPerPerson } from '../components/BuildingEfficiencyGauge';
-import MaterialQuantityChart, { calculateTotalMaterialWeight } from '../components/MaterialQuantityChart';
+import { calculateTotalCO2 } from '../components/CO2EmissionsChart';
+import { calculateTotalEnergy } from '../components/EnergyConsumptionChart';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -35,297 +32,112 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-  };
-
-  const handleAddBatiment = () => {
-    navigate('/add-site');
-  };
-
-  const handleDeleteSite = async (siteId, siteName) => {
-    if (!window.confirm(`Are you sure you want to delete "${siteName}"? This action cannot be undone.`)) {
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/Sites/${siteId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      
-      // Remove the site from the local state
-      setSites(sites.filter(site => site.id !== siteId));
-    } catch (err) {
-      console.error('Error deleting site:', err);
-      alert('Failed to delete site. Please try again.');
-    }
+  const handleSiteClick = (siteId) => {
+    navigate(`/site/${siteId}`);
   };
 
   return (
-    <div style={styles.container}>
-      {/* Sidebar */}
-      <aside style={styles.sidebar}>
-        <div style={styles.logoArea}>
-          <Building2 size={32} color="white" />
-          <h2 style={styles.logoText}>Dashboard</h2>
+    <div style={styles.content}>
+      {/* Header */}
+      <div style={styles.header}>
+        <h1 style={styles.pageTitle}>All Sites</h1>
+        <p style={styles.pageSubtitle}>Click on a site to view detailed analytics</p>
+      </div>
+
+      {/* KPI Card */}
+      <div style={styles.kpiCard}>
+        <div style={styles.kpiIconWrapper}>
+          <Building2 size={24} color="#8DC5AA" />
         </div>
-        
-        <nav style={styles.nav}>
-          <button onClick={() => navigate('/dashboard')} style={{...styles.navItem, ...styles.navItemActive, border: 'none', background: 'none', width: '100%', textAlign: 'left', cursor: 'pointer'}}>
-            <LayoutDashboard size={20} />
-            Dashboard
-          </button>
-          <button onClick={() => navigate('/sites')} style={{...styles.navItem, border: 'none', background: 'none', width: '100%', textAlign: 'left', cursor: 'pointer'}}>
-            <Building2 size={20} />
-            Site List
-          </button>
-        </nav>
-
-        <div style={styles.sidebarBottom}>
-          <button style={styles.actionButton} onClick={handleAddBatiment}>
-            <Plus size={20} />
-            <span>Add Site</span>
-          </button>
-          
-          <button style={styles.logoutButton} onClick={handleLogout}>
-            <LogOut size={20} />
-            <span>Logout</span>
-          </button>
+        <div style={styles.kpiInfo}>
+          <h3 style={styles.kpiTitle}>Total Sites</h3>
+          <p style={styles.kpiValue}>
+            {loading ? 'Loading...' : error ? 'Error loading data' : sites.length}
+          </p>
         </div>
-      </aside>
+      </div>
 
-      {/* Main Content */}
-      <main style={styles.main}>
-        <div style={styles.content}>
-          {/* KPI Card */}
-          <div style={styles.kpiCard}>
-            <div style={styles.kpiIconWrapper}>
-              <Building2 size={24} color="#8DC5AA" />
-            </div>
-            <div style={styles.kpiInfo}>
-              <h3 style={styles.kpiTitle}>Total Batiments</h3>
-              <p style={styles.kpiValue}>
-                {loading ? 'Loading...' : error ? 'Error loading data' : sites.length}
-              </p>
-            </div>
-          </div>
+      {/* Sites List */}
+      {loading ? (
+        <div style={styles.loadingMessage}>Loading sites...</div>
+      ) : error ? (
+        <div style={styles.errorMessage}>{error}</div>
+      ) : sites.length === 0 ? (
+        <div style={styles.emptyMessage}>No sites available. Click "Add Site" to create one.</div>
+      ) : (
+        <div style={styles.sitesGrid}>
+          {sites.map(site => {
+            const totalCO2 = calculateTotalCO2(site.materiaux);
+            const totalEnergy = calculateTotalEnergy(site.energies);
 
-          {/* Sites Grid */}
-          {loading ? (
-            <div style={styles.loadingMessage}>Loading sites...</div>
-          ) : error ? (
-            <div style={styles.errorMessage}>{error}</div>
-          ) : sites.length === 0 ? (
-            <div style={styles.emptyMessage}>No sites available. Click "Add Batiment" to create one.</div>
-          ) : (
-            <div style={styles.sitesGrid}>
-              {sites.map(site => {
-                const totalCO2 = calculateTotalCO2(site.materiaux);
-                const totalEnergy = calculateTotalEnergy(site.energies);
-                const co2PerM2 = calculateCO2PerM2(totalCO2, site.superficieM2);
-                const energyPerPerson = calculateEnergyPerPerson(totalEnergy, site.nombrePersonnes);
-                const totalParking = calculateTotalParking(site.parking);
-                const totalMaterialWeight = calculateTotalMaterialWeight(site.materiaux);
-
-                return (
-                  <div key={site.id} style={styles.siteCard}>
-                    <div style={styles.siteHeader}>
-                      <h3 style={styles.siteName}>{site.nom}</h3>
-                      <div style={styles.siteHeaderRight}>
-                        <span style={styles.siteType}>{site.typeSite || 'N/A'}</span>
-                        <button 
-                          className="site-delete-button"
-                          style={styles.deleteButton}
-                          onClick={() => handleDeleteSite(site.id, site.nom)}
-                          title="Delete site"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </div>
-                    
-                    <div style={styles.siteDetails}>
-                      <div style={styles.detailItem}>
-                        <span style={styles.detailLabel}>Surface:</span>
-                        <span style={styles.detailValue}>{site.superficieM2 ? `${site.superficieM2.toFixed(0)} m²` : 'N/A'}</span>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <span style={styles.detailLabel}>Year:</span>
-                        <span style={styles.detailValue}>{site.anneeConstruction || 'N/A'}</span>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <span style={styles.detailLabel}>Floors:</span>
-                        <span style={styles.detailValue}>{site.nombreEtages || 'N/A'}</span>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <span style={styles.detailLabel}>Occupants:</span>
-                        <span style={styles.detailValue}>{site.nombrePersonnes || 'N/A'}</span>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <span style={styles.detailLabel}>Total CO2:</span>
-                        <span style={styles.detailValue}>{totalCO2.toFixed(2)} tons</span>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <span style={styles.detailLabel}>Total Energy:</span>
-                        <span style={styles.detailValue}>{totalEnergy > 0 ? `${totalEnergy.toLocaleString()} kWh` : 'N/A'}</span>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <span style={styles.detailLabel}>Parking Spaces:</span>
-                        <span style={styles.detailValue}>{totalParking || 'N/A'}</span>
-                      </div>
-                      <div style={styles.detailItem}>
-                        <span style={styles.detailLabel}>Material Weight:</span>
-                        <span style={styles.detailValue}>{totalMaterialWeight ? `${totalMaterialWeight.toFixed(0)} t` : 'N/A'}</span>
-                      </div>
-                    </div>
-
-                    {/* Efficiency Gauges */}
-                    <div style={styles.gaugesContainer}>
-                      <BuildingEfficiencyGauge 
-                        value={co2PerM2} 
-                        metric="CO2/m²"
-                        unit="kg/m²"
-                        title="CO2 Efficiency"
-                        height={220}
-                      />
-                      <BuildingEfficiencyGauge 
-                        value={energyPerPerson} 
-                        metric="Energy/Person"
-                        unit="kWh/person"
-                        title="Energy Efficiency"
-                        height={220}
-                        max={energyPerPerson ? energyPerPerson * 2 : 5000}
-                      />
-                    </div>
-
-                    {/* Main Charts Grid */}
-                    <div style={styles.chartsContainer}>
-                      <CO2EmissionsChart materiaux={site.materiaux} />
-                      <EnergyConsumptionChart energies={site.energies} />
-                    </div>
-
-                    {/* Secondary Charts Grid */}
-                    <div style={styles.chartsContainer}>
-                      <ParkingDistributionChart parking={site.parking} />
-                      <MaterialQuantityChart materiaux={site.materiaux} />
-                    </div>
+            return (
+              <div 
+                key={site.id} 
+                className="site-card-clickable"
+                style={styles.siteCard}
+                onClick={() => handleSiteClick(site.id)}
+              >
+                <div style={styles.siteCardHeader}>
+                  <h3 style={styles.siteCardName}>{site.nom}</h3>
+                  <span style={styles.siteCardType}>{site.typeSite || 'N/A'}</span>
+                </div>
+                
+                <div style={styles.siteCardDetails}>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>Surface:</span>
+                    <span style={styles.detailValue}>
+                      {site.superficieM2 ? `${site.superficieM2.toFixed(0)} m²` : 'N/A'}
+                    </span>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>Year:</span>
+                    <span style={styles.detailValue}>{site.anneeConstruction || 'N/A'}</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>CO2:</span>
+                    <span style={styles.detailValue}>{totalCO2.toFixed(2)} tons</span>
+                  </div>
+                  <div style={styles.detailRow}>
+                    <span style={styles.detailLabel}>Energy:</span>
+                    <span style={styles.detailValue}>
+                      {totalEnergy > 0 ? `${totalEnergy.toLocaleString()} kWh` : 'N/A'}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={styles.viewDetailsButton}>
+                  View Details →
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </main>
+      )}
     </div>
   );
 }
 
 const styles = {
-  container: {
-    display: 'flex',
-    minHeight: '100vh',
-    fontFamily: '"Inter", sans-serif',
-    backgroundColor: '#f4f7f6',
-  },
-  sidebar: {
-    width: '260px',
-    backgroundColor: '#8DC5AA',
-    color: 'white',
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '2rem 1.5rem',
-    boxShadow: '4px 0 10px rgba(0,0,0,0.1)',
-  },
-  logoArea: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.75rem',
-    marginBottom: '3rem',
-  },
-  logoText: {
-    margin: 0,
-    fontSize: '1.5rem',
-    fontWeight: 'bold',
-    letterSpacing: '1px',
-  },
-  nav: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '0.5rem',
-  },
-  navItem: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '0.75rem',
-    padding: '0.8rem 1rem',
-    borderRadius: '8px',
-    color: 'rgba(255,255,255,0.7)',
-    textDecoration: 'none',
-    transition: 'all 0.2s',
-    fontWeight: '500',
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    color: 'white',
-  },
-  sidebarBottom: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1rem',
-  },
-  actionButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-    padding: '0.8rem',
-    backgroundColor: '#4caf50',
-    color: 'white',
-    border: 'none',
-    borderRadius: '8px',
-    fontSize: '1rem',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    transition: 'background 0.2s',
-  },
-  logoutButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-    padding: '0.8rem',
-    backgroundColor: 'transparent',
-    color: 'rgba(255,255,255,0.7)',
-    border: '1px solid rgba(255,255,255,0.3)',
-    borderRadius: '8px',
-    fontSize: '1rem',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  },
-  main: {
-    flex: 1,
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  header: {
-    backgroundColor: 'white',
-    padding: '2rem 3rem',
-    borderBottom: '1px solid #eaeaea',
-  },
-  pageTitle: {
-    margin: 0,
-    fontSize: '1.8rem',
-    color: '#333',
-  },
   content: {
     padding: '3rem',
     flex: 1,
+    fontFamily: '"Inter", sans-serif',
+    backgroundColor: '#f4f7f6',
+    minHeight: '100vh',
+  },
+  header: {
+    marginBottom: '2rem',
+  },
+  pageTitle: {
+    margin: '0 0 0.5rem 0',
+    fontSize: '2rem',
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  pageSubtitle: {
+    margin: 0,
+    fontSize: '1rem',
+    color: '#666',
   },
   kpiCard: {
     backgroundColor: 'white',
@@ -366,8 +178,8 @@ const styles = {
   },
   sitesGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(900px, 1fr))',
-    gap: '2rem',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+    gap: '1.5rem',
     marginTop: '1rem',
   },
   siteCard: {
@@ -377,8 +189,9 @@ const styles = {
     boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
     border: '1px solid #eaeaea',
     transition: 'transform 0.2s, box-shadow 0.2s',
+    cursor: 'pointer',
   },
-  siteHeader: {
+  siteCardHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -386,13 +199,13 @@ const styles = {
     paddingBottom: '1rem',
     borderBottom: '1px solid #eaeaea',
   },
-  siteName: {
+  siteCardName: {
     margin: 0,
     fontSize: '1.25rem',
     fontWeight: 'bold',
     color: '#333',
   },
-  siteType: {
+  siteCardType: {
     padding: '0.25rem 0.75rem',
     backgroundColor: '#8DC5AA',
     color: 'white',
@@ -400,31 +213,13 @@ const styles = {
     fontSize: '0.85rem',
     fontWeight: '500',
   },
-  siteHeaderRight: {
+  siteCardDetails: {
     display: 'flex',
-    alignItems: 'center',
-    gap: '0.75rem',
+    flexDirection: 'column',
+    gap: '0.5rem',
+    marginBottom: '1rem',
   },
-  deleteButton: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '0.5rem',
-    backgroundColor: 'transparent',
-    color: '#F44336',
-    border: '1px solid #F44336',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-    fontSize: '0.9rem',
-  },
-  siteDetails: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(4, 1fr)',
-    gap: '0.75rem',
-    marginBottom: '1.5rem',
-  },
-  detailItem: {
+  detailRow: {
     display: 'flex',
     justifyContent: 'space-between',
     padding: '0.5rem',
@@ -441,18 +236,15 @@ const styles = {
     color: '#333',
     fontWeight: 'bold',
   },
-  gaugesContainer: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '1rem',
-    marginTop: '1rem',
-    marginBottom: '1rem',
-  },
-  chartsContainer: {
-    display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    gap: '1rem',
-    marginTop: '1rem',
+  viewDetailsButton: {
+    textAlign: 'center',
+    padding: '0.75rem',
+    backgroundColor: '#8DC5AA',
+    color: 'white',
+    borderRadius: '8px',
+    fontSize: '0.9rem',
+    fontWeight: '600',
+    transition: 'background 0.2s',
   },
   loadingMessage: {
     textAlign: 'center',

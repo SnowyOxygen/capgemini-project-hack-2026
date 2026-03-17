@@ -62,8 +62,8 @@ export default function BuildingEfficiencyGauge({
         }
       },
       pane: {
-        center: ['50%', '70%'],
-        size: '100%',
+        center: ['50%', '85%'],
+        size: '140%',
         startAngle: -90,
         endAngle: 90,
         background: {
@@ -90,25 +90,26 @@ export default function BuildingEfficiencyGauge({
         tickAmount: 2,
         title: {
           text: metric,
-          y: 60,
+          y: -70,
           style: {
-            fontSize: '14px'
+            fontSize: '12px',
+            color: '#666'
           }
         },
         labels: {
-          y: 16
+          y: 16,
+          style: {
+            fontSize: '10px'
+          }
         }
       },
       plotOptions: {
         solidgauge: {
           dataLabels: {
-            y: -25,
+            enabled: true,
             borderWidth: 0,
             useHTML: true,
-            format: '<div style="text-align:center">' +
-                    '<span style="font-size:32px;color:' + color + '">{y}</span><br/>' +
-                    '<span style="font-size:14px;color:gray">' + unit + '</span>' +
-                    '</div>'
+            y: -50
           }
         }
       },
@@ -116,9 +117,9 @@ export default function BuildingEfficiencyGauge({
         name: metric,
         data: [value],
         dataLabels: {
-          format: '<div style="text-align:center">' +
-                  '<span style="font-size:32px">{y:.1f}</span><br/>' +
-                  '<span style="font-size:14px;opacity:0.6">' + unit + '</span>' +
+          format: '<div style="text-align:center;">' +
+                  '<span style="font-size:24px; font-weight: bold;">{y:.1f}</span><br/>' +
+                  '<span style="font-size:11px; color: #888;">' + unit + '</span>' +
                   '</div>'
         }
       }],

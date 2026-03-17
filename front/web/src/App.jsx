@@ -7,7 +7,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import AddSite from './pages/AddSite';
-import SiteList from './pages/SiteList';
+import SiteDetail from './pages/SiteDetail';
+import EditSite from './pages/EditSite';
+import DashboardLayout from './components/DashboardLayout';
 import './App.css';
 
 function App() {
@@ -15,9 +17,14 @@ function App() {
     <Routes>
       <Route path="/" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/add-site" element={<AddSite />} />
-      <Route path="/sites" element={<SiteList />} />
+      
+      {/* Protected routes with persistent sidebar */}
+      <Route element={<DashboardLayout />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/site/:id" element={<SiteDetail />} />
+        <Route path="/site/:id/edit" element={<EditSite />} />
+        <Route path="/add-site" element={<AddSite />} />
+      </Route>
     </Routes>
   )
 }

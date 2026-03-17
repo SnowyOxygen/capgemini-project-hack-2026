@@ -15,7 +15,7 @@ namespace Api.Data
                 context.Materiaux.AddRange(
                     new Materiau { Nom = "Béton", FacteurEmission = 0.12m },
                     new Materiau { Id = 2, Nom = "Acier", FacteurEmission = 1.85m },
-                    new Materiau { Id = 3, Nom = "Bois", FacteurEmission = -0.5m },
+                    new Materiau { Id = 3, Nom = "Bois", FacteurEmission = 0.3m },
                     new Materiau { Id = 4, Nom = "Vitrage", FacteurEmission = 0.8m },
                     new Materiau { Id = 5, Nom = "Isolant", FacteurEmission = 1.2m }
                 );
