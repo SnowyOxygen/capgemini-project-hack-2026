@@ -88,11 +88,12 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<DataContext>();
         context.Database.Migrate();
-        app.Logger.LogInformation("Database migration completed successfully");
+        DbInitializer.Initialize(context);
+        app.Logger.LogInformation("Database migration and initialization completed successfully");
     }
     catch (Exception ex)
     {
-        app.Logger.LogError(ex, "An error occurred while migrating the database");
+        app.Logger.LogError(ex, "An error occurred while migrating or initializing the database");
         throw;
     }
 }

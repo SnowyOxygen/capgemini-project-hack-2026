@@ -13,6 +13,21 @@ export default function Login() {
     e.preventDefault();
     setError('');
     setLoading(true);
+    
+    // Simple client-side validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address.');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:5000/api/Auth/signin', { email, password });
       // Depending on actual response structure. Swagger says AuthResponse / JWT Token mapped to text/plain or JSON
@@ -74,7 +89,7 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: '100vh',
-    background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+    background: 'linear-gradient(135deg, #8DC5AA 0%, #76b094 100%)',
     fontFamily: '"Inter", sans-serif',
   },
   card: {
@@ -83,7 +98,7 @@ const styles = {
     borderRadius: '16px',
     boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
     width: '100%',
-    maxWidth: '400px',
+    maxWidth: '500px',
     textAlign: 'center',
   },
   title: {
@@ -121,7 +136,7 @@ const styles = {
     padding: '1rem',
     borderRadius: '8px',
     border: 'none',
-    background: '#1e3c72',
+    background: '#8DC5AA',
     color: 'white',
     fontSize: '1rem',
     fontWeight: 'bold',
@@ -136,7 +151,7 @@ const styles = {
     fontSize: '0.9rem',
   },
   link: {
-    color: '#1e3c72',
+    color: '#8DC5AA',
     textDecoration: 'none',
     fontWeight: 'bold',
   }

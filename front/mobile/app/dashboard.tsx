@@ -20,7 +20,7 @@ export default function DashboardScreen() {
         <View style={styles.header}>
           <View style={styles.headerLeft}>
             <Ionicons name="business" size={28} color="#fff" />
-            <Text style={styles.headerTitle}>MyApp Desktop</Text>
+            <Text style={styles.headerTitle}>Dashboard</Text>
           </View>
           <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
             <Ionicons name="log-out-outline" size={26} color="#fff" />
@@ -28,7 +28,7 @@ export default function DashboardScreen() {
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.pageTitle}>Dashboard Overview</Text>
+          <Text style={styles.pageTitle}>Dashboard</Text>
 
           {/* Actions Menu */}
           <View style={styles.actionsContainer}>
@@ -42,7 +42,7 @@ export default function DashboardScreen() {
           <View style={styles.kpiContainer}>
             <View style={styles.kpiCard}>
               <View style={styles.kpiIcon}>
-                <Ionicons name="business-outline" size={32} color="#1e3c72" />
+                <Ionicons name="business-outline" size={32} color="#8DC5AA" />
               </View>
               <View>
                 <Text style={styles.kpiTitle}>Total Batiments</Text>
@@ -59,7 +59,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#1e3c72',
+    backgroundColor: '#8DC5AA',
     paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
   },
   container: {
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f4f7f6',
   },
   header: {
-    backgroundColor: '#1e3c72',
+    backgroundColor: '#8DC5AA',
     padding: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   actionButton: {
-    backgroundColor: '#4caf50',
+    backgroundColor: '#8DC5AA',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     borderColor: '#eaeaea',
   },
   kpiIcon: {
-    backgroundColor: 'rgba(30, 60, 114, 0.1)',
+    backgroundColor: 'rgba(141, 197, 170, 0.1)',
     padding: 15,
     borderRadius: 12,
   },

@@ -11,7 +11,7 @@ export default function Dashboard() {
   };
 
   const handleAddBatiment = () => {
-    alert("Add Batiment Action Triggered!");
+    navigate('/add-site');
   };
 
   return (
@@ -20,13 +20,13 @@ export default function Dashboard() {
       <aside style={styles.sidebar}>
         <div style={styles.logoArea}>
           <Building2 size={32} color="white" />
-          <h2 style={styles.logoText}>MyApp</h2>
+          <h2 style={styles.logoText}>Dashboard</h2>
         </div>
         
         <nav style={styles.nav}>
           <a href="#" style={{...styles.navItem, ...styles.navItemActive}}>
             <LayoutDashboard size={20} />
-            Overview
+            Dashboard
           </a>
         </nav>
 
@@ -45,15 +45,12 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main style={styles.main}>
-        <header style={styles.header}>
-          <h1 style={styles.pageTitle}>Dashboard Overview</h1>
-        </header>
 
         <div style={styles.content}>
           {/* KPI Card */}
           <div style={styles.kpiCard}>
             <div style={styles.kpiIconWrapper}>
-              <Building2 size={24} color="#1e3c72" />
+              <Building2 size={24} color="#8DC5AA" />
             </div>
             <div style={styles.kpiInfo}>
               <h3 style={styles.kpiTitle}>Total Batiments</h3>
@@ -75,7 +72,7 @@ const styles = {
   },
   sidebar: {
     width: '260px',
-    backgroundColor: '#1e3c72',
+    backgroundColor: '#8DC5AA',
     color: 'white',
     display: 'flex',
     flexDirection: 'column',
@@ -176,12 +173,12 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     gap: '1.5rem',
-    maxWidth: '400px',
+    maxWidth: 'none',
     boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
     border: '1px solid #eaeaea',
   },
   kpiIconWrapper: {
-    backgroundColor: 'rgba(30, 60, 114, 0.1)',
+    backgroundColor: 'rgba(141, 197, 170, 0.1)',
     width: '64px',
     height: '64px',
     borderRadius: '16px',

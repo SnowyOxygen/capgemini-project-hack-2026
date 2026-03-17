@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#1e3c72', // Gradient proxy
+    backgroundColor: '#8DC5AA', // New theme color
   },
   card: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#1e3c72',
+    backgroundColor: '#8DC5AA',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   link: {
-    color: '#1e3c72',
+    color: '#8DC5AA',
     fontWeight: 'bold',
   },
 });
