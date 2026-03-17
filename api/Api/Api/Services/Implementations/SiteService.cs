@@ -23,6 +23,12 @@ namespace Api.Services.Implementations
             _materiauRepository = materiauRepository;
         }
 
+        public async Task<IEnumerable<SiteResponse>> GetAllSitesAsync()
+        {
+            var sites = await _siteRepository.GetAllAsync();
+            return sites.Select(MapToResponse);
+        }
+
         public async Task<SiteResponse> CreateSiteAsync(CreateSiteRequest request)
         {
             // Validate materials exist

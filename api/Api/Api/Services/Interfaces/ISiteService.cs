@@ -4,6 +4,7 @@ namespace Api.Services.Interfaces
 {
     public interface ISiteService
     {
+        Task<IEnumerable<SiteResponse>> GetAllSitesAsync();
         Task<SiteResponse> CreateSiteAsync(CreateSiteRequest request);
         Task<SiteResponse> UpdateSiteAsync(int siteId, UpdateSiteRequest request);
         Task<ParkingResponse> UpsertParkingAsync(int siteId, UpsertParkingRequest request);

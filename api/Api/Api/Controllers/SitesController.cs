@@ -25,6 +25,78 @@ namespace Api.Controllers
         }
 
         /// <summary>
+        /// Retrieves all sites with their complete data
+        /// </summary>
+        /// <returns>List of all sites with parking, energies, and materials</returns>
+        /// <response code="200">Returns the list of all sites</response>
+        /// <response code="401">If authentication is missing or invalid</response>
+        /// <remarks>
+        /// Sample response:
+        /// 
+        ///     GET /api/sites
+        ///     [
+        ///       {
+        ///         "id": 1,
+        ///         "nom": "Tour Eiffel Office Complex",
+        ///         "typeSite": "Bureau",
+        ///         "anneeConstruction": 2018,
+        ///         "superficieM2": 15000.50,
+        ///         "nombreEtages": 12,
+        ///         "nombrePersonnes": 450,
+        ///         "parking": {
+        ///           "id": 1,
+        ///           "nombrePlacesTotal": 200,
+        ///           "placesAeriennes": 50,
+        ///           "placesSousDalle": 75,
+        ///           "placesSousSol": 75
+        ///         },
+        ///         "energies": [
+        ///           {
+        ///             "id": 1,
+        ///             "typeEnergie": "Électricité",
+        ///             "consommationAnnuelle": 850000.00,
+        ///             "unite": "kWh",
+        ///             "typeDonnee": "Réelle",
+        ///             "periodeDebut": "2024-01-01T00:00:00Z",
+        ///             "periodeFin": "2024-12-31T23:59:59Z"
+        ///           }
+        ///         ],
+        ///         "materiaux": [
+        ///           {
+        ///             "id": 1,
+        ///             "materiauId": 1,
+        ///             "materiauNom": "Béton",
+        ///             "quantite": 5000.00,
+        ///             "unite": "t"
+        ///           }
+        ///         ],
+        ///         "createdAt": "2024-01-15T10:30:00Z"
+        ///       }
+        ///     ]
+        ///     
+        /// Each site includes:
+        /// - All basic site information
+        /// - Parking details (if exists)
+        /// - All energy consumption records
+        /// - All materials with quantities and names
+        /// </remarks>
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<SiteResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<IEnumerable<SiteResponse>>> GetAllSites()
+        {
+            try
+            {
+                var sites = await _siteService.GetAllSitesAsync();
+                return Ok(sites);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Une erreur est survenue lors de la récupération des sites.", details = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Creates a new site with all related entities (parking, energies, materials)
         /// </summary>
         /// <param name="request">Complete site creation request with all related data</param>
