@@ -49,6 +49,17 @@ builder.Services.AddScoped<IFacteurEnergieRepository, FacteurEnergieRepository>(
 builder.Services.AddScoped<IEmissionMensuelleRepository, EmissionMensuelleRepository>();
 builder.Services.AddScoped<IEmissionSnapshotRepository, EmissionSnapshotRepository>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -77,6 +88,8 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseMiddleware<TokenBlacklistMiddleware>();

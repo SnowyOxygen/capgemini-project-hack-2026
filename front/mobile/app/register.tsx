@@ -3,28 +3,26 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator,
 import { useRouter, Link } from 'expo-router';
 import axios from 'axios';
 
-// Since we are running in Docker, you should replace this IP with your local IP if running on phone,
-// but since the user is testing on the phone, the IP we fetched earlier is 10.31.242.2
 const API_URL = Platform.OS === 'web' ? 'http://localhost:5000' : 'http://10.31.242.2:5000';
 
-export default function LoginScreen() {
+export default function RegisterScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async () => {
+  const handleRegister = async () => {
     setError('');
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/api/Auth/signin`, { email, password });
+      const response = await axios.post(`${API_URL}/api/Auth/signup`, { email, password });
       router.replace('/dashboard');
     } catch (err: any) {
-      if (err.response?.status === 401) {
-        setError('Invalid email or password.');
+      if (err.response?.status === 400) {
+        setError(err.response?.data?.title || 'Invalid password or user already exists.');
       } else {
-        setError(err.response?.data?.title || err.response?.data?.message || 'Failed to sign in.');
+        setError(err.response?.data?.message || 'Registration failed.');
       }
     } finally {
       setLoading(false);
@@ -34,8 +32,8 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.card}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to access your dashboard</Text>
+        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Sign up to get started</Text>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -49,21 +47,21 @@ export default function LoginScreen() {
         />
         <TextInput
           style={styles.input}
-          placeholder="Password"
+          placeholder="Password (Min 8, 1 Upper, 1 Digit)"
           value={password}
           onChangeText={setPassword}
           secureTextEntry
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign In</Text>}
+        <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Sign Up</Text>}
         </TouchableOpacity>
 
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an account? </Text>
-          <Link href="/register" asChild>
+          <Text style={styles.footerText}>Already have an account? </Text>
+          <Link href="/" asChild>
             <TouchableOpacity>
-              <Text style={styles.link}>Sign up</Text>
+              <Text style={styles.link}>Sign in</Text>
             </TouchableOpacity>
           </Link>
         </View>
@@ -77,7 +75,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 20,
-    backgroundColor: '#1e3c72', // Gradient proxy
+    backgroundColor: '#1e3c72',
   },
   card: {
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -116,7 +114,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
-    fontSize: 16,
+    fontSize: 14,
   },
   button: {
     backgroundColor: '#1e3c72',
