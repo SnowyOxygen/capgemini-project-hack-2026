@@ -1,9 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, Plus, LayoutDashboard, Building2 } from 'lucide-react';
+import axios from 'axios';
+import CO2EmissionsChart, { calculateTotalCO2 } from '../components/CO2EmissionsChart';
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [sites, setSites] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchSites();
+  }, []);
+
+  const fetchSites = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/Sites`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      setSites(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching sites:', err);
+      setError('Failed to load sites');
+      setLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -45,7 +71,6 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main style={styles.main}>
-
         <div style={styles.content}>
           {/* KPI Card */}
           <div style={styles.kpiCard}>
@@ -54,9 +79,56 @@ export default function Dashboard() {
             </div>
             <div style={styles.kpiInfo}>
               <h3 style={styles.kpiTitle}>Total Batiments</h3>
-              <p style={styles.kpiValue}>No data available</p>
+              <p style={styles.kpiValue}>
+                {loading ? 'Loading...' : error ? 'Error loading data' : sites.length}
+              </p>
             </div>
           </div>
+
+          {/* Sites Grid */}
+          {loading ? (
+            <div style={styles.loadingMessage}>Loading sites...</div>
+          ) : error ? (
+            <div style={styles.errorMessage}>{error}</div>
+          ) : sites.length === 0 ? (
+            <div style={styles.emptyMessage}>No sites available. Click "Add Batiment" to create one.</div>
+          ) : (
+            <div style={styles.sitesGrid}>
+              {sites.map(site => {
+                const totalCO2 = calculateTotalCO2(site.materiaux);
+
+                return (
+                  <div key={site.id} style={styles.siteCard}>
+                    <div style={styles.siteHeader}>
+                      <h3 style={styles.siteName}>{site.nom}</h3>
+                      <span style={styles.siteType}>{site.typeSite || 'N/A'}</span>
+                    </div>
+                    
+                    <div style={styles.siteDetails}>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Surface:</span>
+                        <span style={styles.detailValue}>{site.superficieM2 ? `${site.superficieM2.toFixed(0)} m²` : 'N/A'}</span>
+                      </div>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Year:</span>
+                        <span style={styles.detailValue}>{site.anneeConstruction || 'N/A'}</span>
+                      </div>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Floors:</span>
+                        <span style={styles.detailValue}>{site.nombreEtages || 'N/A'}</span>
+                      </div>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Total CO2:</span>
+                        <span style={styles.detailValue}>{totalCO2.toFixed(2)} tons</span>
+                      </div>
+                    </div>
+
+                    <CO2EmissionsChart materiaux={site.materiaux} />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
     </div>
@@ -176,6 +248,7 @@ const styles = {
     maxWidth: 'none',
     boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
     border: '1px solid #eaeaea',
+    marginBottom: '2rem',
   },
   kpiIconWrapper: {
     backgroundColor: 'rgba(141, 197, 170, 0.1)',
@@ -201,5 +274,82 @@ const styles = {
     fontSize: '1.25rem',
     color: '#333',
     fontWeight: 'bold',
+  },
+  sitesGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(500px, 1fr))',
+    gap: '2rem',
+    marginTop: '1rem',
+  },
+  siteCard: {
+    backgroundColor: 'white',
+    borderRadius: '16px',
+    padding: '1.5rem',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+    border: '1px solid #eaeaea',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+  },
+  siteHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '1rem',
+    paddingBottom: '1rem',
+    borderBottom: '1px solid #eaeaea',
+  },
+  siteName: {
+    margin: 0,
+    fontSize: '1.25rem',
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  siteType: {
+    padding: '0.25rem 0.75rem',
+    backgroundColor: '#8DC5AA',
+    color: 'white',
+    borderRadius: '12px',
+    fontSize: '0.85rem',
+    fontWeight: '500',
+  },
+  siteDetails: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '0.75rem',
+    marginBottom: '1.5rem',
+  },
+  detailItem: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '0.5rem',
+    backgroundColor: '#f8f9fa',
+    borderRadius: '8px',
+  },
+  detailLabel: {
+    fontSize: '0.875rem',
+    color: '#666',
+    fontWeight: '500',
+  },
+  detailValue: {
+    fontSize: '0.875rem',
+    color: '#333',
+    fontWeight: 'bold',
+  },
+  loadingMessage: {
+    textAlign: 'center',
+    padding: '3rem',
+    fontSize: '1.125rem',
+    color: '#666',
+  },
+  errorMessage: {
+    textAlign: 'center',
+    padding: '3rem',
+    fontSize: '1.125rem',
+    color: '#d32f2f',
+  },
+  emptyMessage: {
+    textAlign: 'center',
+    padding: '3rem',
+    fontSize: '1.125rem',
+    color: '#666',
   }
 };
