@@ -280,6 +280,63 @@ namespace Api.Controllers
         }
 
         /// <summary>
+        /// Retrieves the energy consumption history for a specific site
+        /// </summary>
+        /// <param name="id">Site ID</param>
+        /// <returns>List of energy consumption records ordered by most recent first</returns>
+        /// <response code="200">Returns the list of energy consumption records</response>
+        /// <response code="401">If authentication is missing or invalid</response>
+        /// <response code="404">If the site does not exist</response>
+        /// <remarks>
+        /// Sample response:
+        /// 
+        ///     GET /api/sites/1/energies
+        ///     [
+        ///       {
+        ///         "id": 1,
+        ///         "typeEnergie": "Électricité",
+        ///         "consommationAnnuelle": 850000.00,
+        ///         "unite": "kWh",
+        ///         "typeDonnee": "Réelle",
+        ///         "periodeDebut": "2024-01-01T00:00:00Z",
+        ///         "periodeFin": "2024-12-31T23:59:59Z"
+        ///       },
+        ///       {
+        ///         "id": 2,
+        ///         "typeEnergie": "Gaz",
+        ///         "consommationAnnuelle": 125000.00,
+        ///         "unite": "kWh",
+        ///         "typeDonnee": "Estimée",
+        ///         "periodeDebut": "2024-01-01T00:00:00Z",
+        ///         "periodeFin": "2024-12-31T23:59:59Z"
+        ///       }
+        ///     ]
+        ///     
+        /// Energy records are ordered by period start date (most recent first), 
+        /// then by ID for records without dates.
+        /// </remarks>
+        [HttpGet("{id}/energies")]
+        [ProducesResponseType(typeof(IEnumerable<EnergieResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<IEnumerable<EnergieResponse>>> GetEnergies(int id)
+        {
+            try
+            {
+                var energies = await _siteService.GetEnergiesForSiteAsync(id);
+                return Ok(energies);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Une erreur est survenue lors de la récupération des énergies.", details = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Adds a new energy consumption record to a site
         /// </summary>
         /// <param name="id">Site ID</param>

@@ -254,6 +254,32 @@ namespace Api.Services.Implementations
             return true;
         }
 
+        public async Task<IEnumerable<EnergieResponse>> GetEnergiesForSiteAsync(int siteId)
+        {
+            var siteExists = await _siteRepository.ExistsAsync(siteId);
+            if (!siteExists)
+            {
+                throw new InvalidOperationException($"Le site avec l'ID {siteId} n'existe pas.");
+            }
+
+            var energies = await _context.Energies
+                .Where(e => e.SiteId == siteId)
+                .OrderByDescending(e => e.PeriodeDebut ?? DateTime.MinValue)
+                .ThenByDescending(e => e.Id)
+                .ToListAsync();
+
+            return energies.Select(e => new EnergieResponse
+            {
+                Id = e.Id,
+                TypeEnergie = e.TypeEnergie,
+                ConsommationAnnuelle = e.ConsommationAnnuelle,
+                Unite = e.Unite,
+                TypeDonnee = e.TypeDonnee,
+                PeriodeDebut = e.PeriodeDebut,
+                PeriodeFin = e.PeriodeFin
+            });
+        }
+
         public async Task<EnergieResponse> AddEnergieAsync(int siteId, AddEnergieRequest request)
         {
             var siteExists = await _siteRepository.ExistsAsync(siteId);

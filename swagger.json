@@ -1,0 +1,2393 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Api",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/Auth/signup": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Registers a new user account",
+        "description": "Sample request:\n\n    POST /api/auth/signup\n    {\n        \"email\": \"user@example.com\",\n        \"password\": \"SecurePass123\"\n    }\n    \nPassword requirements:\n- Minimum 8 characters\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one digit",
+        "requestBody": {
+          "description": "Registration details including email and password",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the JWT token and user email",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the user already exists or password is invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/signin": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Authenticates an existing user",
+        "description": "Sample request:\n\n    POST /api/auth/signin\n    {\n        \"email\": \"user@example.com\",\n        \"password\": \"SecurePass123\"\n    }",
+        "requestBody": {
+          "description": "Login credentials including email and password",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the JWT token and user email",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If the credentials are invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/forgot-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Initiates password reset process by sending a reset token to the user's email",
+        "description": "Sample request:\n\n    POST /api/auth/forgot-password\n    {\n        \"email\": \"user@example.com\"\n    }\n    \nNotes:\n- For security reasons, the API doesn't reveal whether the email exists\n- Reset token is valid for 1 hour\n- In development, the token is logged to console\n- In production, configure SMTP to send actual emails",
+        "requestBody": {
+          "description": "Request containing the user's email address",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns success message (always returns this for security)"
+          },
+          "500": {
+            "description": "If an unexpected error occurred"
+          }
+        }
+      }
+    },
+    "/api/Auth/reset-password": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Resets user password using a valid reset token",
+        "description": "Sample request:\n\n    POST /api/auth/reset-password\n    {\n        \"token\": \"base64-encoded-reset-token\",\n        \"newPassword\": \"NewSecurePass123\"\n    }\n    \nPassword requirements:\n- Minimum 8 characters\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one digit\n\nToken requirements:\n- Must be unused\n- Must not be expired (valid for 1 hour)",
+        "requestBody": {
+          "description": "Request containing the reset token and new password",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password successfully reset"
+          },
+          "400": {
+            "description": "If the token is invalid/expired or password doesn't meet requirements",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/logout": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Logs out the current user by invalidating their JWT token",
+        "description": "Sample request:\n\n    POST /api/auth/logout\n    Headers: Authorization: Bearer {your-jwt-token}\n    \nNotes:\n- Requires valid JWT token in Authorization header\n- Token is added to blacklist and cannot be reused\n- Token remains blacklisted until its natural expiration",
+        "responses": {
+          "200": {
+            "description": "User successfully logged out"
+          },
+          "401": {
+            "description": "If the token is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "If an unexpected error occurred"
+          }
+        }
+      }
+    },
+    "/api/Sites": {
+      "get": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Retrieves all sites with their complete data",
+        "description": "Sample response:\n\n    GET /api/sites\n    [\n      {\n        \"id\": 1,\n        \"nom\": \"Tour Eiffel Office Complex\",\n        \"typeSite\": \"Bureau\",\n        \"anneeConstruction\": 2018,\n        \"superficieM2\": 15000.50,\n        \"nombreEtages\": 12,\n        \"nombrePersonnes\": 450,\n        \"parking\": {\n          \"id\": 1,\n          \"nombrePlacesTotal\": 200,\n          \"placesAeriennes\": 50,\n          \"placesSousDalle\": 75,\n          \"placesSousSol\": 75\n        },\n        \"energies\": [\n          {\n            \"id\": 1,\n            \"typeEnergie\": \"Électricité\",\n            \"consommationAnnuelle\": 850000.00,\n            \"unite\": \"kWh\",\n            \"typeDonnee\": \"Réelle\",\n            \"periodeDebut\": \"2024-01-01T00:00:00Z\",\n            \"periodeFin\": \"2024-12-31T23:59:59Z\"\n          }\n        ],\n        \"materiaux\": [\n          {\n            \"id\": 1,\n            \"materiauId\": 1,\n            \"materiauNom\": \"Béton\",\n            \"quantite\": 5000.00,\n            \"unite\": \"t\"\n          }\n        ],\n        \"createdAt\": \"2024-01-15T10:30:00Z\"\n      }\n    ]\n    \nEach site includes:\n- All basic site information\n- Parking details (if exists)\n- All energy consumption records\n- All materials with quantities and names",
+        "responses": {
+          "200": {
+            "description": "Returns the list of all sites",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteResponse"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteResponse"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SiteResponse"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Creates a new site with all related entities (parking, energies, materials)",
+        "description": "Sample request:\n\n    POST /api/sites\n    {\n      \"site\": {\n        \"nom\": \"Tour Eiffel Office Complex\",\n        \"typeSite\": \"Bureau\",\n        \"anneeConstruction\": 2018,\n        \"superficieM2\": 15000.50,\n        \"nombreEtages\": 12,\n        \"nombrePersonnes\": 450\n      },\n      \"parking\": {\n        \"nombrePlacesTotal\": 200,\n        \"placesAeriennes\": 50,\n        \"placesSousDalle\": 75,\n        \"placesSousSol\": 75\n      },\n      \"energies\": [\n        {\n          \"typeEnergie\": \"Électricité\",\n          \"consommationAnnuelle\": 850000.00,\n          \"unite\": \"kWh\",\n          \"typeDonnee\": \"Réelle\",\n          \"periodeDebut\": \"2024-01-01T00:00:00Z\",\n          \"periodeFin\": \"2024-12-31T23:59:59Z\"\n        }\n      ],\n      \"materiaux\": [\n        {\n          \"materiauId\": 1,\n          \"quantite\": 5000.00,\n          \"unite\": \"t\"\n        }\n      ]\n    }\n    \nNotes:\n- Only the site name (nom) is required\n- Parking, energies, and materials are optional\n- Materials must reference existing material IDs from the catalog\n- All data is saved in a single transaction",
+        "requestBody": {
+          "description": "Complete site creation request with all related data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSiteRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSiteRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSiteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created site",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If the request is invalid or validation fails",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Sites/{id}": {
+      "patch": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Updates basic site information (partial update)",
+        "description": "Sample request:\n\n    PATCH /api/sites/1\n    {\n      \"nom\": \"Updated Site Name\",\n      \"nombrePersonnes\": 500\n    }\n    \nOnly include fields you want to update. All fields are optional.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Fields to update (all fields are optional)",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the updated site",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If validation fails",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the site does not exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Sites/{id}/parking": {
+      "put": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Creates or updates parking information for a site",
+        "description": "Sample request:\n\n    PUT /api/sites/1/parking\n    {\n      \"nombrePlacesTotal\": 200,\n      \"placesAeriennes\": 50,\n      \"placesSousDalle\": 75,\n      \"placesSousSol\": 75\n    }\n    \nIf parking exists, it will be updated. If not, it will be created.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Parking information",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertParkingRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertParkingRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertParkingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the parking information",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParkingResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParkingResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParkingResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If validation fails",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the site does not exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Deletes parking information for a site",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Parking deleted successfully"
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If parking does not exist for this site",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Sites/{id}/energies": {
+      "post": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Adds a new energy consumption record to a site",
+        "description": "Sample request:\n\n    POST /api/sites/1/energies\n    {\n      \"typeEnergie\": \"Électricité\",\n      \"consommationAnnuelle\": 850000.00,\n      \"unite\": \"kWh\",\n      \"typeDonnee\": \"Réelle\",\n      \"periodeDebut\": \"2024-01-01T00:00:00Z\",\n      \"periodeFin\": \"2024-12-31T23:59:59Z\"\n    }",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Energy consumption data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddEnergieRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddEnergieRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddEnergieRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created energy record",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergieResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergieResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergieResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If validation fails",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the site does not exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Sites/{id}/energies/{energieId}": {
+      "put": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Updates an existing energy consumption record",
+        "description": "Sample request:\n\n    PUT /api/sites/1/energies/5\n    {\n      \"consommationAnnuelle\": 900000.00,\n      \"typeDonnee\": \"Réelle\"\n    }\n    \nOnly include fields you want to update.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "energieId",
+            "in": "path",
+            "description": "Energy record ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated energy data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEnergieRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEnergieRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateEnergieRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the updated energy record",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergieResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergieResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergieResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If validation fails",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the site or energy record does not exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Deletes an energy consumption record from a site",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "energieId",
+            "in": "path",
+            "description": "Energy record ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Energy record deleted successfully"
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the energy record does not exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Sites/{id}/materiaux": {
+      "post": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Adds a material to a site",
+        "description": "Sample request:\n\n    POST /api/sites/1/materiaux\n    {\n      \"materiauId\": 1,\n      \"quantite\": 5000.00,\n      \"unite\": \"t\"\n    }\n    \nThe material must exist in the materials catalog.\nCannot add the same material twice to a site.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Material data with quantity and unit",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSiteMateriauRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSiteMateriauRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddSiteMateriauRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Returns the newly created material relationship",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteMateriauResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteMateriauResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteMateriauResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If validation fails or material already exists",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the site or material does not exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Sites/{id}/materiaux/{siteMateriauId}": {
+      "put": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Updates material quantity and unit for a site",
+        "description": "Sample request:\n\n    PUT /api/sites/1/materiaux/3\n    {\n      \"quantite\": 6000.00\n    }\n    \nOnly include fields you want to update.\nCannot change the material ID, only quantity and unit.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "siteMateriauId",
+            "in": "path",
+            "description": "Site-Material relationship ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated quantity and/or unit",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteMateriauRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteMateriauRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSiteMateriauRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns the updated material relationship",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteMateriauResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteMateriauResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SiteMateriauResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "If validation fails",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the relationship does not exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Sites"
+        ],
+        "summary": "Removes a material from a site",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Site ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "siteMateriauId",
+            "in": "path",
+            "description": "Site-Material relationship ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Material relationship deleted successfully"
+          },
+          "401": {
+            "description": "If authentication is missing or invalid",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "If the relationship does not exist",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/User/email/{email}": {
+      "get": {
+        "tags": [
+          "User"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/WeatherForecast": {
+      "get": {
+        "tags": [
+          "WeatherForecast"
+        ],
+        "operationId": "GetWeatherForecast",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeatherForecast"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AddEnergieRequest": {
+        "type": "object",
+        "properties": {
+          "typeEnergie": {
+            "maxLength": 50,
+            "type": "string",
+            "description": "Type of energy",
+            "nullable": true,
+            "example": "Électricité"
+          },
+          "consommationAnnuelle": {
+            "maximum": 99999999999999.98,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Annual consumption amount",
+            "format": "double",
+            "nullable": true,
+            "example": 850000.00
+          },
+          "unite": {
+            "maxLength": 20,
+            "type": "string",
+            "description": "Unit of measurement",
+            "nullable": true,
+            "example": "kWh"
+          },
+          "typeDonnee": {
+            "maxLength": 20,
+            "type": "string",
+            "description": "Type of data (Estimée, Réelle, Calculée)",
+            "nullable": true,
+            "example": "Réelle"
+          },
+          "periodeDebut": {
+            "type": "string",
+            "description": "Start date of the measurement period",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "periodeFin": {
+            "type": "string",
+            "description": "End date of the measurement period",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2024-12-31T23:59:59Z"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for adding an energy consumption record"
+      },
+      "AddSiteMateriauRequest": {
+        "required": [
+          "materiauId"
+        ],
+        "type": "object",
+        "properties": {
+          "materiauId": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "description": "ID of the material from the materials catalog",
+            "format": "int32",
+            "example": 1
+          },
+          "quantite": {
+            "maximum": 99999999999999.98,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Quantity of material used",
+            "format": "double",
+            "nullable": true,
+            "example": 5000.00
+          },
+          "unite": {
+            "maxLength": 10,
+            "type": "string",
+            "description": "Unit of quantity (kg, t, m³, m²)",
+            "nullable": true,
+            "example": "t"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for adding a material to a site"
+      },
+      "AuthResponse": {
+        "required": [
+          "email",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token for authenticated requests",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "description": "User's email address",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response model for authentication operations"
+      },
+      "CreateSiteRequest": {
+        "required": [
+          "site"
+        ],
+        "type": "object",
+        "properties": {
+          "site": {
+            "$ref": "#/components/schemas/SiteDto"
+          },
+          "parking": {
+            "$ref": "#/components/schemas/ParkingDto"
+          },
+          "energies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnergieDto"
+            },
+            "description": "Energy consumption records (optional)",
+            "nullable": true
+          },
+          "materiaux": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteMateriauDto"
+            },
+            "description": "Construction materials used (optional)",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for creating a new site with all related entities"
+      },
+      "EnergieDto": {
+        "type": "object",
+        "properties": {
+          "typeEnergie": {
+            "maxLength": 50,
+            "type": "string",
+            "description": "Type of energy",
+            "nullable": true,
+            "example": "Électricité"
+          },
+          "consommationAnnuelle": {
+            "maximum": 99999999999999.98,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Annual consumption amount",
+            "format": "double",
+            "nullable": true,
+            "example": 850000.00
+          },
+          "unite": {
+            "maxLength": 20,
+            "type": "string",
+            "description": "Unit of measurement",
+            "nullable": true,
+            "example": "kWh"
+          },
+          "typeDonnee": {
+            "maxLength": 20,
+            "type": "string",
+            "description": "Type of data (Estimée, Réelle, Calculée)",
+            "nullable": true,
+            "example": "Réelle"
+          },
+          "periodeDebut": {
+            "type": "string",
+            "description": "Start date of the measurement period",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "periodeFin": {
+            "type": "string",
+            "description": "End date of the measurement period",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2024-12-31T23:59:59Z"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Energy consumption record"
+      },
+      "EnergieResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "typeEnergie": {
+            "type": "string",
+            "nullable": true
+          },
+          "consommationAnnuelle": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "unite": {
+            "type": "string",
+            "nullable": true
+          },
+          "typeDonnee": {
+            "type": "string",
+            "nullable": true
+          },
+          "periodeDebut": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "periodeFin": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Energy response model"
+      },
+      "ForgotPasswordRequest": {
+        "required": [
+          "email"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Email address of the account to reset password for",
+            "format": "email",
+            "example": "user@example.com"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for initiating password reset"
+      },
+      "ParkingDto": {
+        "type": "object",
+        "properties": {
+          "nombrePlacesTotal": {
+            "maximum": 100000,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Total number of parking spaces",
+            "format": "int32",
+            "nullable": true,
+            "example": 200
+          },
+          "placesAeriennes": {
+            "maximum": 100000,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of above-ground/outdoor parking spaces",
+            "format": "int32",
+            "nullable": true,
+            "example": 50
+          },
+          "placesSousDalle": {
+            "maximum": 100000,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of parking spaces under concrete slab",
+            "format": "int32",
+            "nullable": true,
+            "example": 75
+          },
+          "placesSousSol": {
+            "maximum": 100000,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of underground parking spaces",
+            "format": "int32",
+            "nullable": true,
+            "example": 75
+          }
+        },
+        "additionalProperties": false,
+        "description": "Parking information"
+      },
+      "ParkingResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "nombrePlacesTotal": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "placesAeriennes": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "placesSousDalle": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "placesSousSol": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Parking response model"
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "ResetPasswordRequest": {
+        "required": [
+          "newPassword",
+          "token"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Password reset token received via email",
+            "example": "base64-encoded-token-string"
+          },
+          "newPassword": {
+            "minLength": 8,
+            "type": "string",
+            "description": "New password (min 8 chars, must contain uppercase, lowercase, and digit)",
+            "example": "NewSecurePass123"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for resetting password with token"
+      },
+      "Role": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "maxLength": 50,
+            "minLength": 1,
+            "type": "string"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SignInRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User's email address",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User's password",
+            "example": "SecurePass123"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for user sign in"
+      },
+      "SignUpRequest": {
+        "required": [
+          "email",
+          "password"
+        ],
+        "type": "object",
+        "properties": {
+          "email": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User's email address (must be unique)",
+            "format": "email",
+            "example": "newuser@example.com"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User's password (min 8 chars, must contain uppercase, lowercase, and digit)",
+            "example": "SecurePass123"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for user registration"
+      },
+      "SiteDto": {
+        "required": [
+          "nom"
+        ],
+        "type": "object",
+        "properties": {
+          "nom": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string",
+            "description": "Name of the site",
+            "example": "Tour Eiffel Office Complex"
+          },
+          "typeSite": {
+            "maxLength": 100,
+            "type": "string",
+            "description": "Type/category of the site",
+            "nullable": true,
+            "example": "Bureau"
+          },
+          "anneeConstruction": {
+            "maximum": 2100,
+            "minimum": 1800,
+            "type": "integer",
+            "description": "Year the site was constructed",
+            "format": "int32",
+            "nullable": true,
+            "example": 2018
+          },
+          "superficieM2": {
+            "maximum": 999999999999.99,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Total surface area in square meters",
+            "format": "double",
+            "nullable": true,
+            "example": 15000.50
+          },
+          "nombreEtages": {
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of floors/levels",
+            "format": "int32",
+            "nullable": true,
+            "example": 12
+          },
+          "nombrePersonnes": {
+            "maximum": 1000000,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of people occupying the site",
+            "format": "int32",
+            "nullable": true,
+            "example": 450
+          }
+        },
+        "additionalProperties": false,
+        "description": "Site core information"
+      },
+      "SiteMateriauDto": {
+        "required": [
+          "materiauId"
+        ],
+        "type": "object",
+        "properties": {
+          "materiauId": {
+            "maximum": 2147483647,
+            "minimum": 1,
+            "type": "integer",
+            "description": "ID of the material from the materials catalog",
+            "format": "int32",
+            "example": 1
+          },
+          "quantite": {
+            "maximum": 99999999999999.98,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Quantity of material used",
+            "format": "double",
+            "nullable": true,
+            "example": 5000.00
+          },
+          "unite": {
+            "maxLength": 10,
+            "type": "string",
+            "description": "Unit of quantity (kg, t, m³, m²)",
+            "nullable": true,
+            "example": "t"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Material usage record"
+      },
+      "SiteMateriauResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "materiauId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "materiauNom": {
+            "type": "string",
+            "nullable": true
+          },
+          "quantite": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "unite": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Material response model"
+      },
+      "SiteResponse": {
+        "required": [
+          "nom"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Site ID",
+            "format": "int32"
+          },
+          "nom": {
+            "type": "string",
+            "description": "Name of the site",
+            "nullable": true
+          },
+          "typeSite": {
+            "type": "string",
+            "description": "Type/category of the site",
+            "nullable": true
+          },
+          "anneeConstruction": {
+            "type": "integer",
+            "description": "Year the site was constructed",
+            "format": "int32",
+            "nullable": true
+          },
+          "superficieM2": {
+            "type": "number",
+            "description": "Total surface area in square meters",
+            "format": "double",
+            "nullable": true
+          },
+          "nombreEtages": {
+            "type": "integer",
+            "description": "Number of floors/levels",
+            "format": "int32",
+            "nullable": true
+          },
+          "nombrePersonnes": {
+            "type": "integer",
+            "description": "Number of people occupying the site",
+            "format": "int32",
+            "nullable": true
+          },
+          "parking": {
+            "$ref": "#/components/schemas/ParkingResponse"
+          },
+          "energies": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnergieResponse"
+            },
+            "description": "Energy consumption records",
+            "nullable": true
+          },
+          "materiaux": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SiteMateriauResponse"
+            },
+            "description": "Construction materials used",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Timestamp when the site was created",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response model for a created site"
+      },
+      "UpdateEnergieRequest": {
+        "type": "object",
+        "properties": {
+          "typeEnergie": {
+            "maxLength": 50,
+            "type": "string",
+            "description": "Type of energy",
+            "nullable": true,
+            "example": "Électricité"
+          },
+          "consommationAnnuelle": {
+            "maximum": 99999999999999.98,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Annual consumption amount",
+            "format": "double",
+            "nullable": true,
+            "example": 850000.00
+          },
+          "unite": {
+            "maxLength": 20,
+            "type": "string",
+            "description": "Unit of measurement",
+            "nullable": true,
+            "example": "kWh"
+          },
+          "typeDonnee": {
+            "maxLength": 20,
+            "type": "string",
+            "description": "Type of data (Estimée, Réelle, Calculée)",
+            "nullable": true,
+            "example": "Réelle"
+          },
+          "periodeDebut": {
+            "type": "string",
+            "description": "Start date of the measurement period",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2024-01-01T00:00:00Z"
+          },
+          "periodeFin": {
+            "type": "string",
+            "description": "End date of the measurement period",
+            "format": "date-time",
+            "nullable": true,
+            "example": "2024-12-31T23:59:59Z"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for updating an energy consumption record"
+      },
+      "UpdateSiteMateriauRequest": {
+        "type": "object",
+        "properties": {
+          "quantite": {
+            "maximum": 99999999999999.98,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Quantity of material used",
+            "format": "double",
+            "nullable": true,
+            "example": 5000.00
+          },
+          "unite": {
+            "maxLength": 10,
+            "type": "string",
+            "description": "Unit of quantity (kg, t, m³, m²)",
+            "nullable": true,
+            "example": "t"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for updating a material record for a site"
+      },
+      "UpdateSiteRequest": {
+        "type": "object",
+        "properties": {
+          "nom": {
+            "maxLength": 255,
+            "type": "string",
+            "description": "Name of the site",
+            "nullable": true,
+            "example": "Updated Office Complex"
+          },
+          "typeSite": {
+            "maxLength": 100,
+            "type": "string",
+            "description": "Type/category of the site",
+            "nullable": true,
+            "example": "Bureau"
+          },
+          "anneeConstruction": {
+            "maximum": 2100,
+            "minimum": 1800,
+            "type": "integer",
+            "description": "Year the site was constructed",
+            "format": "int32",
+            "nullable": true,
+            "example": 2018
+          },
+          "superficieM2": {
+            "maximum": 999999999999.99,
+            "minimum": 0.01,
+            "type": "number",
+            "description": "Total surface area in square meters",
+            "format": "double",
+            "nullable": true,
+            "example": 15000.50
+          },
+          "nombreEtages": {
+            "maximum": 1000,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of floors/levels",
+            "format": "int32",
+            "nullable": true,
+            "example": 12
+          },
+          "nombrePersonnes": {
+            "maximum": 1000000,
+            "minimum": 1,
+            "type": "integer",
+            "description": "Number of people occupying the site",
+            "format": "int32",
+            "nullable": true,
+            "example": 450
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for updating basic site information"
+      },
+      "UpsertParkingRequest": {
+        "type": "object",
+        "properties": {
+          "nombrePlacesTotal": {
+            "maximum": 100000,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Total number of parking spaces",
+            "format": "int32",
+            "nullable": true,
+            "example": 200
+          },
+          "placesAeriennes": {
+            "maximum": 100000,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of above-ground/outdoor parking spaces",
+            "format": "int32",
+            "nullable": true,
+            "example": 50
+          },
+          "placesSousDalle": {
+            "maximum": 100000,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of parking spaces under concrete slab",
+            "format": "int32",
+            "nullable": true,
+            "example": 75
+          },
+          "placesSousSol": {
+            "maximum": 100000,
+            "minimum": 0,
+            "type": "integer",
+            "description": "Number of underground parking spaces",
+            "format": "int32",
+            "nullable": true,
+            "example": 75
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for updating or creating parking information"
+      },
+      "User": {
+        "required": [
+          "email",
+          "password",
+          "roleId"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "email": {
+            "maxLength": 255,
+            "minLength": 1,
+            "type": "string"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "roleId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ValidationProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "WeatherForecast": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "temperatureC": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "temperatureF": {
+            "type": "integer",
+            "format": "int32",
+            "readOnly": true
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Sites"
+    },
+    {
+      "name": "User"
+    },
+    {
+      "name": "WeatherForecast"
+    }
+  ]
+}
