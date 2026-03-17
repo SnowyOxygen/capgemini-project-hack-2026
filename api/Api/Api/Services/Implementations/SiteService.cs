@@ -185,6 +185,25 @@ namespace Api.Services.Implementations
             return MapToResponse(site);
         }
 
+        public async Task<bool> DeleteSiteAsync(int siteId)
+        {
+            var site = await _context.Sites
+                .Include(s => s.Parkings)
+                .Include(s => s.Energies)
+                .Include(s => s.SiteMateriaux)
+                .FirstOrDefaultAsync(s => s.Id == siteId);
+
+            if (site == null)
+            {
+                return false;
+            }
+
+            _context.Sites.Remove(site);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
         public async Task<ParkingResponse> UpsertParkingAsync(int siteId, UpsertParkingRequest request)
         {
             var site = await _context.Sites

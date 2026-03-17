@@ -7,6 +7,7 @@ namespace Api.Services.Interfaces
         Task<IEnumerable<SiteResponse>> GetAllSitesAsync();
         Task<SiteResponse> CreateSiteAsync(CreateSiteRequest request);
         Task<SiteResponse> UpdateSiteAsync(int siteId, UpdateSiteRequest request);
+        Task<bool> DeleteSiteAsync(int siteId);
         Task<ParkingResponse> UpsertParkingAsync(int siteId, UpsertParkingRequest request);
         Task<bool> DeleteParkingAsync(int siteId);
         Task<IEnumerable<EnergieResponse>> GetEnergiesForSiteAsync(int siteId);

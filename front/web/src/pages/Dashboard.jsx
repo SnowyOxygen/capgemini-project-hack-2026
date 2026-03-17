@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Plus, LayoutDashboard, Building2 } from 'lucide-react';
+import { LogOut, Plus, LayoutDashboard, Building2, Trash2 } from 'lucide-react';
 import axios from 'axios';
 import CO2EmissionsChart, { calculateTotalCO2 } from '../components/CO2EmissionsChart';
+import EnergyConsumptionChart, { calculateTotalEnergy } from '../components/EnergyConsumptionChart';
+import ParkingDistributionChart, { calculateTotalParking } from '../components/ParkingDistributionChart';
+import BuildingEfficiencyGauge, { calculateCO2PerM2, calculateEnergyPerPerson } from '../components/BuildingEfficiencyGauge';
+import MaterialQuantityChart, { calculateTotalMaterialWeight } from '../components/MaterialQuantityChart';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -38,6 +42,27 @@ export default function Dashboard() {
 
   const handleAddBatiment = () => {
     navigate('/add-site');
+  };
+
+  const handleDeleteSite = async (siteId, siteName) => {
+    if (!window.confirm(`Are you sure you want to delete "${siteName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/Sites/${siteId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      // Remove the site from the local state
+      setSites(sites.filter(site => site.id !== siteId));
+    } catch (err) {
+      console.error('Error deleting site:', err);
+      alert('Failed to delete site. Please try again.');
+    }
   };
 
   return (
@@ -100,12 +125,27 @@ export default function Dashboard() {
             <div style={styles.sitesGrid}>
               {sites.map(site => {
                 const totalCO2 = calculateTotalCO2(site.materiaux);
+                const totalEnergy = calculateTotalEnergy(site.energies);
+                const co2PerM2 = calculateCO2PerM2(totalCO2, site.superficieM2);
+                const energyPerPerson = calculateEnergyPerPerson(totalEnergy, site.nombrePersonnes);
+                const totalParking = calculateTotalParking(site.parking);
+                const totalMaterialWeight = calculateTotalMaterialWeight(site.materiaux);
 
                 return (
                   <div key={site.id} style={styles.siteCard}>
                     <div style={styles.siteHeader}>
                       <h3 style={styles.siteName}>{site.nom}</h3>
-                      <span style={styles.siteType}>{site.typeSite || 'N/A'}</span>
+                      <div style={styles.siteHeaderRight}>
+                        <span style={styles.siteType}>{site.typeSite || 'N/A'}</span>
+                        <button 
+                          className="site-delete-button"
+                          style={styles.deleteButton}
+                          onClick={() => handleDeleteSite(site.id, site.nom)}
+                          title="Delete site"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
                     
                     <div style={styles.siteDetails}>
@@ -122,12 +162,57 @@ export default function Dashboard() {
                         <span style={styles.detailValue}>{site.nombreEtages || 'N/A'}</span>
                       </div>
                       <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Occupants:</span>
+                        <span style={styles.detailValue}>{site.nombrePersonnes || 'N/A'}</span>
+                      </div>
+                      <div style={styles.detailItem}>
                         <span style={styles.detailLabel}>Total CO2:</span>
                         <span style={styles.detailValue}>{totalCO2.toFixed(2)} tons</span>
                       </div>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Total Energy:</span>
+                        <span style={styles.detailValue}>{totalEnergy > 0 ? `${totalEnergy.toLocaleString()} kWh` : 'N/A'}</span>
+                      </div>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Parking Spaces:</span>
+                        <span style={styles.detailValue}>{totalParking || 'N/A'}</span>
+                      </div>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Material Weight:</span>
+                        <span style={styles.detailValue}>{totalMaterialWeight ? `${totalMaterialWeight.toFixed(0)} t` : 'N/A'}</span>
+                      </div>
                     </div>
 
-                    <CO2EmissionsChart materiaux={site.materiaux} />
+                    {/* Efficiency Gauges */}
+                    <div style={styles.gaugesContainer}>
+                      <BuildingEfficiencyGauge 
+                        value={co2PerM2} 
+                        metric="CO2/m²"
+                        unit="kg/m²"
+                        title="CO2 Efficiency"
+                        height={220}
+                      />
+                      <BuildingEfficiencyGauge 
+                        value={energyPerPerson} 
+                        metric="Energy/Person"
+                        unit="kWh/person"
+                        title="Energy Efficiency"
+                        height={220}
+                        max={energyPerPerson ? energyPerPerson * 2 : 5000}
+                      />
+                    </div>
+
+                    {/* Main Charts Grid */}
+                    <div style={styles.chartsContainer}>
+                      <CO2EmissionsChart materiaux={site.materiaux} />
+                      <EnergyConsumptionChart energies={site.energies} />
+                    </div>
+
+                    {/* Secondary Charts Grid */}
+                    <div style={styles.chartsContainer}>
+                      <ParkingDistributionChart parking={site.parking} />
+                      <MaterialQuantityChart materiaux={site.materiaux} />
+                    </div>
                   </div>
                 );
               })}
@@ -281,7 +366,7 @@ const styles = {
   },
   sitesGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(500px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(900px, 1fr))',
     gap: '2rem',
     marginTop: '1rem',
   },
@@ -315,9 +400,27 @@ const styles = {
     fontSize: '0.85rem',
     fontWeight: '500',
   },
+  siteHeaderRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.75rem',
+  },
+  deleteButton: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: '0.5rem',
+    backgroundColor: 'transparent',
+    color: '#F44336',
+    border: '1px solid #F44336',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    fontSize: '0.9rem',
+  },
   siteDetails: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: 'repeat(4, 1fr)',
     gap: '0.75rem',
     marginBottom: '1.5rem',
   },
@@ -337,6 +440,19 @@ const styles = {
     fontSize: '0.875rem',
     color: '#333',
     fontWeight: 'bold',
+  },
+  gaugesContainer: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1rem',
+    marginTop: '1rem',
+    marginBottom: '1rem',
+  },
+  chartsContainer: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: '1rem',
+    marginTop: '1rem',
   },
   loadingMessage: {
     textAlign: 'center',

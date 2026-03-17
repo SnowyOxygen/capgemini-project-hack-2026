@@ -213,6 +213,36 @@ namespace Api.Controllers
         }
 
         /// <summary>
+        /// Deletes a site and all its related data
+        /// </summary>
+        /// <param name="id">Site ID</param>
+        /// <returns>Success status</returns>
+        /// <response code="204">Site deleted successfully</response>
+        /// <response code="401">If authentication is missing or invalid</response>
+        /// <response code="404">If the site does not exist</response>
+        /// <remarks>
+        /// This endpoint permanently deletes a site and all related data including:
+        /// - Parking information
+        /// - Energy consumption records
+        /// - Materials
+        /// 
+        /// This action cannot be undone.
+        /// </remarks>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteSite(int id)
+        {
+            var deleted = await _siteService.DeleteSiteAsync(id);
+            if (!deleted)
+            {
+                return NotFound(new { message = $"Le site avec l'ID {id} n'existe pas." });
+            }
+            return NoContent();
+        }
+
+        /// <summary>
         /// Creates or updates parking information for a site
         /// </summary>
         /// <param name="id">Site ID</param>
