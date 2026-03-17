@@ -513,6 +513,52 @@ namespace Api.Services.Implementations
                 Unite = sm.Unite
             }).ToList();
 
+            // Calculate score (Emissions)
+            // Construction: Materiaux + Parking
+            decimal matEmissions = 0;
+            foreach (var sm in site.SiteMateriaux)
+            {
+                matEmissions += (sm.Quantite ?? 0) * (sm.Materiau?.FacteurEmission ?? 0);
+            }
+
+            decimal parkingEmissions = 0;
+            if (parking != null)
+            {
+                parkingEmissions = ((parking.PlacesAeriennes ?? 0) * 0.5m) + 
+                                  ((parking.PlacesSousDalle ?? 0) * 2.5m) + 
+                                  ((parking.PlacesSousSol ?? 0) * 5.0m);
+            }
+
+            response.EmissionsConstruction = matEmissions + parkingEmissions;
+
+            // Annual: Energy + Surface + Employees
+            decimal energyEmissions = 0;
+            foreach (var e in site.Energies)
+            {
+                // Note: ideally we should look up the current factor from FacteursEnergie 
+                // but for simplicity and matching the frontend logic (which uses types), 
+                // we'll use slightly different logic if we don't have the factor repository injected here
+                // However, the model doesn't store the factor, so we'd need the repository.
+                // Let's assume the site list calculation should match the detail.
+                // For now, let's use the static factors we seeded if possible.
+                // Or just use the model's TypeEnergie to match.
+                
+                decimal factor = e.TypeEnergie switch
+                {
+                    "Électricité" => 0.057m,
+                    "Gaz naturel" => 0.227m,
+                    "Fioul" => 0.324m,
+                    "Géothermie" => 0.015m,
+                    _ => 0
+                };
+                energyEmissions += (e.ConsommationAnnuelle ?? 0) * factor;
+            }
+
+            decimal usageSurface = (site.SuperficieM2 ?? 0) * 0.00033m;
+            decimal employes = (site.NombrePersonnes ?? 0) * 0.016m; // 0.80 / 50 from user example
+            
+            response.EmissionsAnnuelles = energyEmissions + usageSurface + employes;
+
             return response;
         }
     }

@@ -56,6 +56,16 @@ namespace Api.DTOs
         public List<SiteMateriauResponse> Materiaux { get; set; } = new();
 
         /// <summary>
+        /// Total construction emissions (calculated)
+        /// </summary>
+        public decimal EmissionsConstruction { get; set; }
+
+        /// <summary>
+        /// Total annual emissions (calculated)
+        /// </summary>
+        public decimal EmissionsAnnuelles { get; set; }
+
+        /// <summary>
         /// Timestamp when the site was created
         /// </summary>
         public DateTime CreatedAt { get; set; }
