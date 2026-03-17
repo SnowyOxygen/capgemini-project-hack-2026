@@ -34,7 +34,7 @@ export default function DashboardScreen() {
           <View style={styles.actionsContainer}>
             <TouchableOpacity style={styles.actionButton} onPress={handleAddBatiment}>
               <Ionicons name="add-circle-outline" size={24} color="#fff" />
-              <Text style={styles.actionText}>Add Batiment</Text>
+              <Text style={styles.actionText}>Add Site</Text>
             </TouchableOpacity>
           </View>
 
@@ -45,7 +45,7 @@ export default function DashboardScreen() {
                 <Ionicons name="business-outline" size={32} color="#8DC5AA" />
               </View>
               <View>
-                <Text style={styles.kpiTitle}>Total Batiments</Text>
+                <Text style={styles.kpiTitle}>Total Sites</Text>
                 <Text style={styles.kpiValue}>No data available</Text>
               </View>
             </View>

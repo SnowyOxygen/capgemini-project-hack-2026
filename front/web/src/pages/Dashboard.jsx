@@ -24,16 +24,20 @@ export default function Dashboard() {
         </div>
         
         <nav style={styles.nav}>
-          <a href="#" style={{...styles.navItem, ...styles.navItemActive}}>
+          <button onClick={() => navigate('/dashboard')} style={{...styles.navItem, ...styles.navItemActive, border: 'none', background: 'none', width: '100%', textAlign: 'left', cursor: 'pointer'}}>
             <LayoutDashboard size={20} />
             Dashboard
-          </a>
+          </button>
+          <button onClick={() => navigate('/sites')} style={{...styles.navItem, border: 'none', background: 'none', width: '100%', textAlign: 'left', cursor: 'pointer'}}>
+            <Building2 size={20} />
+            Site List
+          </button>
         </nav>
 
         <div style={styles.sidebarBottom}>
           <button style={styles.actionButton} onClick={handleAddBatiment}>
             <Plus size={20} />
-            <span>Add Batiment</span>
+            <span>Add Site</span>
           </button>
           
           <button style={styles.logoutButton} onClick={handleLogout}>
@@ -53,7 +57,7 @@ export default function Dashboard() {
               <Building2 size={24} color="#8DC5AA" />
             </div>
             <div style={styles.kpiInfo}>
-              <h3 style={styles.kpiTitle}>Total Batiments</h3>
+              <h3 style={styles.kpiTitle}>Total Sites</h3>
               <p style={styles.kpiValue}>No data available</p>
             </div>
           </div>
