@@ -154,6 +154,283 @@ namespace Api.Services.Implementations
             }
         }
 
+        public async Task<SiteResponse> UpdateSiteAsync(int siteId, UpdateSiteRequest request)
+        {
+            var site = await _context.Sites
+                .Include(s => s.Parkings)
+                .Include(s => s.Energies)
+                .Include(s => s.SiteMateriaux)
+                    .ThenInclude(sm => sm.Materiau)
+                .FirstOrDefaultAsync(s => s.Id == siteId);
+
+            if (site == null)
+            {
+                throw new InvalidOperationException($"Le site avec l'ID {siteId} n'existe pas.");
+            }
+
+            if (request.Nom != null) site.Nom = request.Nom;
+            if (request.TypeSite != null) site.TypeSite = request.TypeSite;
+            if (request.AnneeConstruction.HasValue) site.AnneeConstruction = request.AnneeConstruction;
+            if (request.SuperficieM2.HasValue) site.SuperficieM2 = request.SuperficieM2;
+            if (request.NombreEtages.HasValue) site.NombreEtages = request.NombreEtages;
+            if (request.NombrePersonnes.HasValue) site.NombrePersonnes = request.NombrePersonnes;
+
+            await _context.SaveChangesAsync();
+            return MapToResponse(site);
+        }
+
+        public async Task<ParkingResponse> UpsertParkingAsync(int siteId, UpsertParkingRequest request)
+        {
+            var site = await _context.Sites
+                .Include(s => s.Parkings)
+                .FirstOrDefaultAsync(s => s.Id == siteId);
+
+            if (site == null)
+            {
+                throw new InvalidOperationException($"Le site avec l'ID {siteId} n'existe pas.");
+            }
+
+            var sum = (request.PlacesAeriennes ?? 0) +
+                     (request.PlacesSousDalle ?? 0) +
+                     (request.PlacesSousSol ?? 0);
+
+            if (request.NombrePlacesTotal.HasValue && sum > request.NombrePlacesTotal.Value)
+            {
+                throw new InvalidOperationException(
+                    "La somme des places de parking dépasse le nombre total de places.");
+            }
+
+            var parking = site.Parkings.FirstOrDefault();
+            if (parking != null)
+            {
+                if (request.NombrePlacesTotal.HasValue) parking.NombrePlacesTotal = request.NombrePlacesTotal;
+                if (request.PlacesAeriennes.HasValue) parking.PlacesAeriennes = request.PlacesAeriennes;
+                if (request.PlacesSousDalle.HasValue) parking.PlacesSousDalle = request.PlacesSousDalle;
+                if (request.PlacesSousSol.HasValue) parking.PlacesSousSol = request.PlacesSousSol;
+            }
+            else
+            {
+                parking = new Parking
+                {
+                    SiteId = siteId,
+                    NombrePlacesTotal = request.NombrePlacesTotal,
+                    PlacesAeriennes = request.PlacesAeriennes,
+                    PlacesSousDalle = request.PlacesSousDalle,
+                    PlacesSousSol = request.PlacesSousSol
+                };
+                _context.Parkings.Add(parking);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new ParkingResponse
+            {
+                Id = parking.Id,
+                NombrePlacesTotal = parking.NombrePlacesTotal,
+                PlacesAeriennes = parking.PlacesAeriennes,
+                PlacesSousDalle = parking.PlacesSousDalle,
+                PlacesSousSol = parking.PlacesSousSol
+            };
+        }
+
+        public async Task<bool> DeleteParkingAsync(int siteId)
+        {
+            var parking = await _context.Parkings
+                .FirstOrDefaultAsync(p => p.SiteId == siteId);
+
+            if (parking == null)
+            {
+                return false;
+            }
+
+            _context.Parkings.Remove(parking);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<EnergieResponse> AddEnergieAsync(int siteId, AddEnergieRequest request)
+        {
+            var siteExists = await _siteRepository.ExistsAsync(siteId);
+            if (!siteExists)
+            {
+                throw new InvalidOperationException($"Le site avec l'ID {siteId} n'existe pas.");
+            }
+
+            if (request.PeriodeDebut.HasValue && request.PeriodeFin.HasValue &&
+                request.PeriodeDebut.Value >= request.PeriodeFin.Value)
+            {
+                throw new InvalidOperationException(
+                    "La période de début doit être antérieure à la période de fin.");
+            }
+
+            var energie = new Energie
+            {
+                SiteId = siteId,
+                TypeEnergie = request.TypeEnergie,
+                ConsommationAnnuelle = request.ConsommationAnnuelle,
+                Unite = request.Unite,
+                TypeDonnee = request.TypeDonnee,
+                PeriodeDebut = request.PeriodeDebut,
+                PeriodeFin = request.PeriodeFin
+            };
+
+            _context.Energies.Add(energie);
+            await _context.SaveChangesAsync();
+
+            return new EnergieResponse
+            {
+                Id = energie.Id,
+                TypeEnergie = energie.TypeEnergie,
+                ConsommationAnnuelle = energie.ConsommationAnnuelle,
+                Unite = energie.Unite,
+                TypeDonnee = energie.TypeDonnee,
+                PeriodeDebut = energie.PeriodeDebut,
+                PeriodeFin = energie.PeriodeFin
+            };
+        }
+
+        public async Task<EnergieResponse> UpdateEnergieAsync(int siteId, int energieId, UpdateEnergieRequest request)
+        {
+            var energie = await _context.Energies
+                .FirstOrDefaultAsync(e => e.Id == energieId && e.SiteId == siteId);
+
+            if (energie == null)
+            {
+                throw new InvalidOperationException(
+                    $"L'énergie avec l'ID {energieId} n'existe pas pour le site {siteId}.");
+            }
+
+            if (request.TypeEnergie != null) energie.TypeEnergie = request.TypeEnergie;
+            if (request.ConsommationAnnuelle.HasValue) energie.ConsommationAnnuelle = request.ConsommationAnnuelle;
+            if (request.Unite != null) energie.Unite = request.Unite;
+            if (request.TypeDonnee != null) energie.TypeDonnee = request.TypeDonnee;
+            if (request.PeriodeDebut.HasValue) energie.PeriodeDebut = request.PeriodeDebut;
+            if (request.PeriodeFin.HasValue) energie.PeriodeFin = request.PeriodeFin;
+
+            if (energie.PeriodeDebut.HasValue && energie.PeriodeFin.HasValue &&
+                energie.PeriodeDebut.Value >= energie.PeriodeFin.Value)
+            {
+                throw new InvalidOperationException(
+                    "La période de début doit être antérieure à la période de fin.");
+            }
+
+            await _context.SaveChangesAsync();
+
+            return new EnergieResponse
+            {
+                Id = energie.Id,
+                TypeEnergie = energie.TypeEnergie,
+                ConsommationAnnuelle = energie.ConsommationAnnuelle,
+                Unite = energie.Unite,
+                TypeDonnee = energie.TypeDonnee,
+                PeriodeDebut = energie.PeriodeDebut,
+                PeriodeFin = energie.PeriodeFin
+            };
+        }
+
+        public async Task<bool> DeleteEnergieAsync(int siteId, int energieId)
+        {
+            var energie = await _context.Energies
+                .FirstOrDefaultAsync(e => e.Id == energieId && e.SiteId == siteId);
+
+            if (energie == null)
+            {
+                return false;
+            }
+
+            _context.Energies.Remove(energie);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<SiteMateriauResponse> AddMateriauAsync(int siteId, AddSiteMateriauRequest request)
+        {
+            var siteExists = await _siteRepository.ExistsAsync(siteId);
+            if (!siteExists)
+            {
+                throw new InvalidOperationException($"Le site avec l'ID {siteId} n'existe pas.");
+            }
+
+            var materiauExists = await _materiauRepository.ExistsAsync(request.MateriauId);
+            if (!materiauExists)
+            {
+                throw new InvalidOperationException($"Le matériau avec l'ID {request.MateriauId} n'existe pas.");
+            }
+
+            var existingRelation = await _context.SiteMateriaux
+                .AnyAsync(sm => sm.SiteId == siteId && sm.MateriauId == request.MateriauId);
+
+            if (existingRelation)
+            {
+                throw new InvalidOperationException(
+                    $"Le matériau {request.MateriauId} est déjà associé au site {siteId}.");
+            }
+
+            var siteMateriau = new SiteMateriau
+            {
+                SiteId = siteId,
+                MateriauId = request.MateriauId,
+                Quantite = request.Quantite,
+                Unite = request.Unite
+            };
+
+            _context.SiteMateriaux.Add(siteMateriau);
+            await _context.SaveChangesAsync();
+
+            var materiau = await _materiauRepository.GetByIdAsync(request.MateriauId);
+
+            return new SiteMateriauResponse
+            {
+                Id = siteMateriau.Id,
+                MateriauId = siteMateriau.MateriauId,
+                MateriauNom = materiau?.Nom ?? string.Empty,
+                Quantite = siteMateriau.Quantite,
+                Unite = siteMateriau.Unite
+            };
+        }
+
+        public async Task<SiteMateriauResponse> UpdateMateriauAsync(int siteId, int siteMateriauId, UpdateSiteMateriauRequest request)
+        {
+            var siteMateriau = await _context.SiteMateriaux
+                .Include(sm => sm.Materiau)
+                .FirstOrDefaultAsync(sm => sm.Id == siteMateriauId && sm.SiteId == siteId);
+
+            if (siteMateriau == null)
+            {
+                throw new InvalidOperationException(
+                    $"Le matériau avec l'ID {siteMateriauId} n'existe pas pour le site {siteId}.");
+            }
+
+            if (request.Quantite.HasValue) siteMateriau.Quantite = request.Quantite;
+            if (request.Unite != null) siteMateriau.Unite = request.Unite;
+
+            await _context.SaveChangesAsync();
+
+            return new SiteMateriauResponse
+            {
+                Id = siteMateriau.Id,
+                MateriauId = siteMateriau.MateriauId,
+                MateriauNom = siteMateriau.Materiau?.Nom ?? string.Empty,
+                Quantite = siteMateriau.Quantite,
+                Unite = siteMateriau.Unite
+            };
+        }
+
+        public async Task<bool> DeleteMateriauAsync(int siteId, int siteMateriauId)
+        {
+            var siteMateriau = await _context.SiteMateriaux
+                .FirstOrDefaultAsync(sm => sm.Id == siteMateriauId && sm.SiteId == siteId);
+
+            if (siteMateriau == null)
+            {
+                return false;
+            }
+
+            _context.SiteMateriaux.Remove(siteMateriau);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
         private static SiteResponse MapToResponse(Site site)
         {
             var response = new SiteResponse
