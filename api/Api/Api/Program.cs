@@ -48,6 +48,7 @@ builder.Services.AddScoped<ISiteMateriauRepository, SiteMateriauRepository>();
 builder.Services.AddScoped<IFacteurEnergieRepository, FacteurEnergieRepository>();
 builder.Services.AddScoped<IEmissionMensuelleRepository, EmissionMensuelleRepository>();
 builder.Services.AddScoped<IEmissionSnapshotRepository, EmissionSnapshotRepository>();
+builder.Services.AddScoped<ISiteService, SiteService>();
 
 builder.Services.AddCors(options =>
 {
